@@ -100,16 +100,17 @@ export default function PostList() {
         {/* 테이블 상단 컨트롤 */}
         <div className="list-controls">
           <div className="page-size-selector">
-            {PAGE_SIZE_OPTIONS.map(size => (
-              <button
-                key={size}
-                className={`page-size-btn${pageSize === size ? ' active' : ''}`}
-                onClick={() => handlePageSizeChange(size)}
-              >
-                {size}
-              </button>
-            ))}
-            <span className="page-size-label">개씩 보기</span>
+            <label htmlFor="page-size" className="page-size-label">페이지당</label>
+            <select
+              id="page-size"
+              className="page-size-select"
+              value={pageSize}
+              onChange={e => handlePageSizeChange(Number(e.target.value))}
+            >
+              {PAGE_SIZE_OPTIONS.map(size => (
+                <option key={size} value={size}>{size}개</option>
+              ))}
+            </select>
           </div>
         </div>
 
