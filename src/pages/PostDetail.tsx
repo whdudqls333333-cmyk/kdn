@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, type FormEvent } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -52,7 +52,7 @@ export default function PostDetail() {
     if (!error) navigate('/')
   }
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!newComment.trim() || !user) return
     setSubmitting(true)
