@@ -93,25 +93,25 @@ export default function PostList() {
         </div>
       </div>
 
-      <div className="container">
-      <NoticeList notices={notices} />
+      <div className="container page-body">
+        <NoticeList notices={notices} />
 
-      {loading && <div className="loading">불러오는 중...</div>}
-      {error && <div className="alert alert-error">{error}</div>}
+        {loading && <div className="loading">불러오는 중...</div>}
+        {error && <div className="alert alert-error">{error}</div>}
 
-      {!loading && !error && (
-        posts.length === 0
-          ? <div className="empty">아직 게시글이 없습니다.</div>
-          : <div className="card-grid">{posts.map(p => <PostCard key={p.id} post={p} />)}</div>
-      )}
+        {!loading && !error && (
+          posts.length === 0
+            ? <div className="empty">아직 게시글이 없습니다.</div>
+            : <div className="card-grid">{posts.map(p => <PostCard key={p.id} post={p} />)}</div>
+        )}
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>이전</button>
-          <span>{page} / {totalPages}</span>
-          <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>이전</button>
+            <span>{page} / {totalPages}</span>
+            <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -13,6 +13,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+// 로그인한 유저의 profile row가 없으면 생성 (트리거 미적용 계정 보완)
+async function ensureProfile(user: User) {
+  await supabase
+    .from('profiles')
+    .upsert({ id: user.id, email: user.email ?? '' }, { onConflict: 'id' })
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -22,12 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
+      if (session?.user) ensureProfile(session.user)
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      if (event === 'SIGNED_IN' && session?.user) ensureProfile(session.user)
     })
 
     return () => subscription.unsubscribe()
@@ -35,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password })
-    // session이 null이면 이메일 인증 대기, 있으면 즉시 로그인 완료
+    if (!error && data.user) await ensureProfile(data.user)
     return { error, needsConfirm: !error && !data.session }
   }
 

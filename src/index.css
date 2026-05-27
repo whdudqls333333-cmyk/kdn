@@ -110,6 +110,8 @@ input, textarea { font: inherit; }
   border-radius: 20px;
 }
 
+.page-body { padding-top: 1.75rem; }
+
 /* ─── Buttons ─────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
