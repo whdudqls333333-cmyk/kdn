@@ -17,7 +17,14 @@ export default function Register() {
     setError(null)
     const { error, needsConfirm } = await signUp(email, password)
     if (error) {
-      setError(error.message)
+      const msg = error.message.toLowerCase()
+      if (msg.includes('rate limit') || msg.includes('too many')) {
+        setError('이메일 발송 한도를 초과했습니다.\nSupabase 대시보드 → Authentication → Providers → Email → "Confirm email" OFF 로 설정하면 이메일 없이 가입할 수 있습니다.')
+      } else if (msg.includes('already registered') || msg.includes('already exists')) {
+        setError('이미 가입된 이메일입니다.')
+      } else {
+        setError(error.message)
+      }
       setLoading(false)
     } else if (needsConfirm) {
       setNeedsConfirm(true)
