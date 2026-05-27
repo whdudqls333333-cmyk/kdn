@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null; needsConfirm: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
 }
@@ -34,8 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    return { error }
+    const { data, error } = await supabase.auth.signUp({ email, password })
+    // session이 null이면 이메일 인증 대기, 있으면 즉시 로그인 완료
+    return { error, needsConfirm: !error && !data.session }
   }
 
   const signIn = async (email: string, password: string) => {

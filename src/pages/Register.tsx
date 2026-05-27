@@ -1,30 +1,38 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Register() {
   const { signUp } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [done, setDone] = useState(false)
+  const [needsConfirm, setNeedsConfirm] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await signUp(email, password)
-    if (error) { setError(error.message); setLoading(false) }
-    else setDone(true)
+    const { error, needsConfirm } = await signUp(email, password)
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else if (needsConfirm) {
+      setNeedsConfirm(true)
+    } else {
+      navigate('/')
+    }
   }
 
-  if (done) return (
+  if (needsConfirm) return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>가입 완료!</h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
-          인증 이메일을 발송했습니다.<br />메일함을 확인한 뒤 로그인해 주세요.
+        <h1>이메일을 확인하세요</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.8 }}>
+          <strong>{email}</strong>로 인증 링크를 보냈습니다.<br />
+          메일함에서 링크를 클릭한 뒤 로그인해 주세요.
         </p>
         <Link to="/login" className="btn btn-primary btn-full">로그인 페이지로</Link>
       </div>

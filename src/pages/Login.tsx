@@ -15,8 +15,17 @@ export default function Login() {
     setLoading(true)
     setError(null)
     const { error } = await signIn(email, password)
-    if (error) { setError('이메일 또는 비밀번호가 올바르지 않습니다.'); setLoading(false) }
-    else navigate('/')
+    if (error) {
+      const msg = error.message.toLowerCase()
+      if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+        setError('이메일 인증이 필요합니다. 받은 메일함에서 인증 링크를 클릭하세요.\n(또는 Supabase 대시보드 → Authentication → Providers → Email → "Confirm email" OFF)')
+      } else {
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.')
+      }
+      setLoading(false)
+    } else {
+      navigate('/')
+    }
   }
 
   return (
