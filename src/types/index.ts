@@ -9,6 +9,7 @@ export interface Post {
   content: string
   author_id: string
   created_at: string
+  is_notice: boolean
   profiles: Profile | null
 }
 

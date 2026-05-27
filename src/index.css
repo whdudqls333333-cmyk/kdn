@@ -139,6 +139,49 @@ input, textarea { font: inherit; }
 }
 .post-author { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* ─── Notices ─────────────────────────────────────────────── */
+.notice-list {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+}
+.notice-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid #BFDBFE;
+  transition: background .15s;
+}
+.notice-item:last-child { border-bottom: none; }
+.notice-item:hover { background: #DBEAFE; }
+.notice-badge {
+  flex-shrink: 0;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #1D4ED8;
+  background: #DBEAFE;
+  border: 1px solid #93C5FD;
+  border-radius: 4px;
+  padding: .1rem .4rem;
+}
+.notice-title {
+  flex: 1;
+  font-size: .925rem;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notice-date {
+  flex-shrink: 0;
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
 /* ─── Pagination ─────────────────────────────────────────── */
 .pagination {
   display: flex;

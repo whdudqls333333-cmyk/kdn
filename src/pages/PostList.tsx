@@ -9,6 +9,21 @@ function formatDate(s: string) {
   return new Date(s).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
+function NoticeList({ notices }: { notices: Post[] }) {
+  if (notices.length === 0) return null
+  return (
+    <div className="notice-list">
+      {notices.map(n => (
+        <Link key={n.id} to={`/posts/${n.id}`} className="notice-item">
+          <span className="notice-badge">공지</span>
+          <span className="notice-title">📢 {n.title}</span>
+          <span className="notice-date">{formatDate(n.created_at)}</span>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 function PostCard({ post }: { post: Post }) {
   const preview = post.content.length > 100 ? post.content.slice(0, 100) + '...' : post.content
   return (
@@ -26,11 +41,21 @@ function PostCard({ post }: { post: Post }) {
 }
 
 export default function PostList() {
+  const [notices, setNotices] = useState<Post[]>([])
   const [posts, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase
+      .from('posts')
+      .select('*, profiles(id, email)')
+      .eq('is_notice', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setNotices((data as Post[]) ?? []))
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -42,6 +67,7 @@ export default function PostList() {
     supabase
       .from('posts')
       .select('*, profiles(id, email)', { count: 'exact' })
+      .eq('is_notice', false)
       .order('created_at', { ascending: false })
       .range(from, to)
       .then(({ data, count, error }) => {
@@ -62,6 +88,8 @@ export default function PostList() {
         <h1>게시글</h1>
         <span className="total-count">총 {total}개</span>
       </div>
+
+      <NoticeList notices={notices} />
 
       {loading && <div className="loading">불러오는 중...</div>}
       {error && <div className="alert alert-error">{error}</div>}

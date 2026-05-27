@@ -40,8 +40,12 @@ create table public.posts (
   title      text not null,
   content    text not null,
   author_id  uuid references public.profiles(id) on delete cascade not null,
+  is_notice  boolean default false not null,
   created_at timestamptz default now() not null
 );
+
+-- 기존 테이블에 컬럼 추가 시 (이미 생성된 경우)
+-- alter table public.posts add column if not exists is_notice boolean default false not null;
 
 alter table public.posts enable row level security;
 
