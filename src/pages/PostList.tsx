@@ -83,12 +83,17 @@ export default function PostList() {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="container page">
-      <div className="page-header">
-        <h1>게시글</h1>
-        <span className="total-count">총 {total}개</span>
+    <div className="page">
+      <div className="page-hero">
+        <div className="container">
+          <div className="page-header">
+            <h1>게시글</h1>
+            <span className="total-count">총 {total}개</span>
+          </div>
+        </div>
       </div>
 
+      <div className="container">
       <NoticeList notices={notices} />
 
       {loading && <div className="loading">불러오는 중...</div>}
@@ -107,6 +112,7 @@ export default function PostList() {
           <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
         </div>
       )}
+      </div>
     </div>
   )
 }

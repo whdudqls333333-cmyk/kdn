@@ -31,6 +31,7 @@ export default function PostCreate() {
     <div className="container page">
       <div className="form-page">
         <h1>새 글 작성</h1>
+        <p className="form-page-desc">작성한 글은 게시판에 공개됩니다.</p>
         <form onSubmit={handleSubmit} className="post-form">
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">

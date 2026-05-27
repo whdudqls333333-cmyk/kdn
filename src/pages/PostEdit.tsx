@@ -48,6 +48,7 @@ export default function PostEdit() {
     <div className="container page">
       <div className="form-page">
         <h1>글 수정</h1>
+        <p className="form-page-desc">내용을 수정한 뒤 저장 버튼을 눌러주세요.</p>
         <form onSubmit={handleSubmit} className="post-form">
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
