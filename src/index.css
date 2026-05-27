@@ -35,8 +35,41 @@ input, textarea { font: inherit; }
 
 /* ─── Layout ─────────────────────────────────────────────── */
 .container { max-width: 960px; margin: 0 auto; padding: 0 1.25rem; }
-.main { padding-top: var(--navbar-h); padding-bottom: 5rem; }
-.page { min-height: calc(100vh - var(--navbar-h) - 5rem); }
+.main { padding-top: var(--navbar-h); padding-bottom: 3rem; }
+.page { min-height: calc(100vh - var(--navbar-h) - 3rem); }
+
+/* ─── Footer ─────────────────────────────────────────────── */
+.footer {
+  background: #F3F4F6;
+  border-top: 1px solid #E5E7EB;
+  padding: 2rem 0;
+}
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
+  text-align: center;
+}
+.footer-brand {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #374151;
+}
+.footer-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  color: #6B7280;
+}
+.footer-divider { color: #D1D5DB; }
+.footer-copy {
+  font-size: .75rem;
+  color: #9CA3AF;
+}
 
 /* ─── Navbar ─────────────────────────────────────────────── */
 .navbar {
