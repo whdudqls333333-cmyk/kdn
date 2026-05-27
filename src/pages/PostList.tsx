@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Post } from '../types'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
 
 function formatDate(s: string) {
-  return new Date(s).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  return new Date(s).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 
 function NoticeList({ notices }: { notices: Post[] }) {
@@ -24,18 +24,13 @@ function NoticeList({ notices }: { notices: Post[] }) {
   )
 }
 
-function PostCard({ post }: { post: Post }) {
-  const preview = post.content.length > 100 ? post.content.slice(0, 100) + '...' : post.content
+function PostRow({ post, index }: { post: Post; index: number }) {
   return (
-    <Link to={`/posts/${post.id}`} className="post-card">
-      <div className="post-card-body">
-        <h2 className="post-card-title">{post.title}</h2>
-        <p className="post-card-preview">{preview}</p>
-      </div>
-      <div className="post-card-footer">
-        <span className="post-author">{post.profiles?.email ?? '익명'}</span>
-        <span className="post-date">{formatDate(post.created_at)}</span>
-      </div>
+    <Link to={`/posts/${post.id}`} className="post-row">
+      <span className="post-row-num">{index + 1}</span>
+      <span className="post-row-title">{post.title}</span>
+      <span className="post-row-author">{post.profiles?.email?.split('@')[0] ?? '익명'}</span>
+      <span className="post-row-date">{formatDate(post.created_at)}</span>
     </Link>
   )
 }
@@ -45,6 +40,7 @@ export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -61,8 +57,8 @@ export default function PostList() {
     let cancelled = false
     setLoading(true)
 
-    const from = (page - 1) * PAGE_SIZE
-    const to = from + PAGE_SIZE - 1
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
 
     supabase
       .from('posts')
@@ -78,9 +74,14 @@ export default function PostList() {
       })
 
     return () => { cancelled = true }
-  }, [page])
+  }, [page, pageSize])
 
-  const totalPages = Math.ceil(total / PAGE_SIZE)
+  const totalPages = Math.ceil(total / pageSize)
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }
 
   return (
     <div className="page">
@@ -96,20 +97,65 @@ export default function PostList() {
       <div className="container page-body">
         <NoticeList notices={notices} />
 
-        {loading && <div className="loading">불러오는 중...</div>}
-        {error && <div className="alert alert-error">{error}</div>}
+        {/* 테이블 상단 컨트롤 */}
+        <div className="list-controls">
+          <div className="page-size-selector">
+            {PAGE_SIZE_OPTIONS.map(size => (
+              <button
+                key={size}
+                className={`page-size-btn${pageSize === size ? ' active' : ''}`}
+                onClick={() => handlePageSizeChange(size)}
+              >
+                {size}
+              </button>
+            ))}
+            <span className="page-size-label">개씩 보기</span>
+          </div>
+        </div>
 
-        {!loading && !error && (
-          posts.length === 0
-            ? <div className="empty">아직 게시글이 없습니다.</div>
-            : <div className="card-grid">{posts.map(p => <PostCard key={p.id} post={p} />)}</div>
-        )}
+        {/* 리스트 헤더 */}
+        <div className="post-list-table">
+          <div className="post-list-head">
+            <span className="post-row-num">번호</span>
+            <span className="post-row-title">제목</span>
+            <span className="post-row-author">작성자</span>
+            <span className="post-row-date">날짜</span>
+          </div>
 
+          {loading && <div className="loading">불러오는 중...</div>}
+          {error && <div className="alert alert-error">{error}</div>}
+
+          {!loading && !error && (
+            posts.length === 0
+              ? <div className="empty">아직 게시글이 없습니다.</div>
+              : posts.map((p, i) => (
+                  <PostRow key={p.id} post={p} index={(page - 1) * pageSize + i} />
+                ))
+          )}
+        </div>
+
+        {/* 페이지네이션 */}
         {totalPages > 1 && (
           <div className="pagination">
+            <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage(1)}>처음</button>
             <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>이전</button>
-            <span>{page} / {totalPages}</span>
+            <div className="pagination-pages">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const start = Math.max(1, Math.min(page - 2, totalPages - 4))
+                const p = start + i
+                return (
+                  <button
+                    key={p}
+                    className={`page-num-btn${page === p ? ' active' : ''}`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </button>
+                )
+              })}
+            </div>
             <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
+            <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(totalPages)}>마지막</button>
           </div>
         )}
       </div>
