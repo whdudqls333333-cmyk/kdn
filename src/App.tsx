@@ -13,7 +13,7 @@ import Register from './pages/Register'
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/kdn">
         <Navbar />
         <main className="main">
           <Routes>
