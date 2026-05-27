@@ -1,0 +1,84 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import type { Post } from '../types'
+
+const PAGE_SIZE = 10
+
+function formatDate(s: string) {
+  return new Date(s).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+function PostCard({ post }: { post: Post }) {
+  const preview = post.content.length > 100 ? post.content.slice(0, 100) + '...' : post.content
+  return (
+    <Link to={`/posts/${post.id}`} className="post-card">
+      <div className="post-card-body">
+        <h2 className="post-card-title">{post.title}</h2>
+        <p className="post-card-preview">{preview}</p>
+      </div>
+      <div className="post-card-footer">
+        <span className="post-author">{post.profiles?.email ?? '익명'}</span>
+        <span className="post-date">{formatDate(post.created_at)}</span>
+      </div>
+    </Link>
+  )
+}
+
+export default function PostList() {
+  const [posts, setPosts] = useState<Post[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+
+    const from = (page - 1) * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
+
+    supabase
+      .from('posts')
+      .select('*, profiles(id, email)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to)
+      .then(({ data, count, error }) => {
+        if (cancelled) return
+        if (error) { setError(error.message) }
+        else { setPosts((data as Post[]) ?? []); setTotal(count ?? 0) }
+        setLoading(false)
+      })
+
+    return () => { cancelled = true }
+  }, [page])
+
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+
+  return (
+    <div className="container page">
+      <div className="page-header">
+        <h1>게시글</h1>
+        <span className="total-count">총 {total}개</span>
+      </div>
+
+      {loading && <div className="loading">불러오는 중...</div>}
+      {error && <div className="alert alert-error">{error}</div>}
+
+      {!loading && !error && (
+        posts.length === 0
+          ? <div className="empty">아직 게시글이 없습니다.</div>
+          : <div className="card-grid">{posts.map(p => <PostCard key={p.id} post={p} />)}</div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button className="btn btn-outline btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>이전</button>
+          <span>{page} / {totalPages}</span>
+          <button className="btn btn-outline btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
+        </div>
+      )}
+    </div>
+  )
+}
